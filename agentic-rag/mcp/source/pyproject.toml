@@ -1,0 +1,14 @@
+[project]
+name = "rag-search-mcp"
+version = "0.1.0"
+description = "MCP server exposing the search half of a RAG pipeline over Qdrant"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.2,<2",
+    "langchain-core>=1.0",
+    "langchain-nvidia-ai-endpoints>=1.0",
+    "langchain-qdrant>=1.0",
+    "python-dotenv>=1.0",
+    "qdrant-client>=1.14.1,<1.15",
+]
+

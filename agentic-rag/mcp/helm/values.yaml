@@ -1,0 +1,27 @@
+
+service:
+  httpPort : 8000
+
+env:
+  EMBED_URL: ""
+  EMBED_KEY: ""
+  EMBED_MODEL: "nvidia/nv-embedqa-e5-v5"
+  QDRANT_URL: "http://qdrant.qdrant.svc.cluster.local"
+  QDRANT_COLLECTION: "documents"
+  TOP_K: "4"
+  MCP_HOST: "0.0.0.0"
+  MCP_PORT: "8000"
+
+resources:
+  requests:
+    cpu: 1
+    memory: 1Gi
+  limits:
+    cpu: 2
+    memory: 2Gi
+
+ezua:
+  domainName: "${DOMAIN_NAME}"
+  virtualService:
+    endpoint: "vector-search-mcp.${DOMAIN_NAME}"
+    istioGateway: "istio-system/ezaf-gateway"

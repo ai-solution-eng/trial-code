@@ -1,0 +1,12 @@
+[project]
+name = "agentic-rag"
+version = "0.0.1"
+description = ""
+requires-python = ">=3.10"
+dependencies = [
+    "crewai==1.15.20",
+    "crewai-tools[mcp]==1.15.20",
+    "arize-phoenix-otel==0.17.1",
+    "openinference-instrumentation-crewai==1.1.16",
+]
+
