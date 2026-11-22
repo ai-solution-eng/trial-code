@@ -26,7 +26,7 @@ EMBED_KEY   = os.environ.get("EMBED_KEY",   "")
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "nvidia/nv-embedqa-e5-v5")
 
 QDRANT_URL        = os.environ.get("QDRANT_URL",        "http://qdrant.qdrant.svc.cluster.local")
-QDRANT_COLLECTION = os.environ.get("QDRANT_COLLECTION", "documents")
+QDRANT_COLLECTION = os.environ.get("QDRANT_COLLECTION", "anywhere")
 TOP_K             = int(os.environ.get("TOP_K",         "5"))
 
 LLM_URL   = os.environ.get("LLM_URL",   "")
@@ -113,4 +113,4 @@ if __name__ == "__main__":
 #==============================================================================
 #   llm = ChatNVIDIA(base_url=LLM_URL, api_key=LLM_KEY, model=LLM_MODEL, temperature=0, max_tokens=1024)
 
-# Sample question: tell me about refund policies about flight cancellations
+# Sample question: tell me about refund policies related to flight cancellations
