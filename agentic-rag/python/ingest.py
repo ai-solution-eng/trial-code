@@ -1,6 +1,8 @@
 import os
 import sys
 from pathlib import Path
+
+import boto3
 from dotenv import load_dotenv
 
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
@@ -23,7 +25,7 @@ QDRANT_URL        = os.environ.get("QDRANT_URL",        "http://qdrant.qdrant.sv
 QDRANT_COLLECTION = os.environ.get("QDRANT_COLLECTION", "anywhere")
 
 S3_URL            = os.environ.get("S3_URL",    "http://local-s3-service.ezdata-system.svc.cluster.local:30000")
-S3_BUCKET         = os.environ.get("S£_BUCKET", "documents")
+S3_BUCKET         = os.environ.get("S3_BUCKET", "documents")
 CHUNK_SIZE        = int (os.environ.get("CHUNK_SIZE",    "1000"))
 CHUNK_OVERLAP     = int (os.environ.get("CHUNK_OVERLAP", "150"))
 
@@ -43,12 +45,8 @@ def ingest_document(doc: list[Document], embeddings: NVIDIAEmbeddings) -> None:
     )
     chunks = splitter.split_documents(doc)
 
-    list = []
-    for chunk in chunks:
-        list.append(chunk.page_content)
-
     QdrantVectorStore.from_documents(
-        list,
+        chunks,
         embedding=embeddings,
         url=QDRANT_URL,
         collection_name=QDRANT_COLLECTION,
@@ -65,21 +63,27 @@ def ingest_documents(embeddings: NVIDIAEmbeddings) -> None:
 
     if "Contents" in files:
         for key in files['Contents']:
-            file = key['Key']
-            print(file)
-            s3_client.download_file(s3_bucket, file, file)
+            key = key['Key']
+            path = Path(key)
+            print(key)
 
-            loader_cls = LOADERS[file.suffix.lower()]
+            loader_cls = LOADERS.get(path.suffix.lower())
+            if loader_cls is None:
+                print(f"Skipping '{key}' (unsupported extension '{path.suffix}').")
+                continue
+
+            s3_client.download_file(S3_BUCKET, key, path.name)
+
             loader = (
-                loader_cls(str(path), encoding="utf-8") if loader_cls is TextLoader 
-                else loader_cls(str(path))
+                loader_cls(path.name, encoding="utf-8") if loader_cls is TextLoader 
+                else loader_cls(path.name)
             )
 
             doc = loader.load()
 
             ingest_document(doc, embeddings)
-            print(f"Loaded {path} ({len(doc)} page(s))")
-            os.remove(file)
+            print(f"Loaded {path.name} ({len(doc)} page(s))")
+            os.remove(path.name)
     else:
         print("empty")
         
