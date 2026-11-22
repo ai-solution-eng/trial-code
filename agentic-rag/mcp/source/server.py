@@ -25,8 +25,8 @@ PORT = int(os.getenv("MCP_PORT", "8000"))
 
 #==============================================================================
 
-client     = QdrantClient(url=QDRANT_URL, prefer_grpc=False, timeout=30)
 embeddings = NVIDIAEmbeddings(model=EMBED_MODEL, base_url=EMBED_URL, api_key=EMBED_KEY, truncate="END")
+client     = QdrantClient(url=QDRANT_URL, prefer_grpc=False, timeout=30)
 store      = QdrantVectorStore(client=client, collection_name=QDRANT_COLLECTION, embedding=embeddings)
 mcp        = FastMCP("vector-search", stateless_http=True, json_response=True, host=HOST, port=PORT)
 
