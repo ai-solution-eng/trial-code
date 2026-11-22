@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 
-import streamlit as st
-import weaviate
+import os
 
-from langchain.prompts import (
+import streamlit as st
+from dotenv import load_dotenv
+
+from langchain_core.prompts import (
     PromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
     ChatPromptTemplate,
 )
-
-from langchain_weaviate.vectorstores import WeaviateVectorStore
-from langchain_nvidia_ai_endpoints import NVIDIAEmbeddings
-
-from langchain_nvidia_ai_endpoints import ChatNVIDIA
-from langchain.schema.runnable import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+
+from langchain_openai import ChatOpenAI
+from langchain_nvidia_ai_endpoints import NVIDIAEmbeddings
+from langchain_qdrant import QdrantVectorStore
+from qdrant_client import QdrantClient
 
 ############################################################
 # Config
