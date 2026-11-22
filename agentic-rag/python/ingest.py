@@ -20,9 +20,10 @@ EMBED_KEY   = os.environ.get("EMBED_KEY",   "")
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "nvidia/nv-embedqa-e5-v5")
 
 QDRANT_URL        = os.environ.get("QDRANT_URL",        "http://qdrant.qdrant.svc.cluster.local")
-QDRANT_COLLECTION = os.environ.get("QDRANT_COLLECTION", "documents")
+QDRANT_COLLECTION = os.environ.get("QDRANT_COLLECTION", "anywhere")
 
-DATA_DIR          = Path(os.environ.get("DATA_DIR",      "./data"))
+S3_URL            = os.environ.get("S3_URL",    "http://local-s3-service.ezdata-system.svc.cluster.local:30000")
+S3_BUCKET         = os.environ.get("S£_BUCKET", "documents")
 CHUNK_SIZE        = int (os.environ.get("CHUNK_SIZE",    "1000"))
 CHUNK_OVERLAP     = int (os.environ.get("CHUNK_OVERLAP", "150"))
 
@@ -42,8 +43,12 @@ def ingest_document(doc: list[Document], embeddings: NVIDIAEmbeddings) -> None:
     )
     chunks = splitter.split_documents(doc)
 
+    list = []
+    for chunk in chunks:
+        list.append(chunk.page_content)
+
     QdrantVectorStore.from_documents(
-        chunks,
+        list,
         embedding=embeddings,
         url=QDRANT_URL,
         collection_name=QDRANT_COLLECTION,
@@ -52,19 +57,33 @@ def ingest_document(doc: list[Document], embeddings: NVIDIAEmbeddings) -> None:
 
 #==============================================================================
 
-def ingest_documents(data_dir: Path, embeddings: NVIDIAEmbeddings) -> None:
-    files = sorted(path for path in data_dir.rglob("*") if path.is_file() and path.suffix.lower() in LOADERS)
+def ingest_documents(embeddings: NVIDIAEmbeddings) -> None:
+    s3_client = boto3.client('s3', endpoint_url=S3_URL)
+    # s3_client = boto3.client('s3', endpoint_url=s3_url, aws_access_key_id=s3_access_key, aws_secret_access_key=s3_secret_key)
 
-    for path in files:
-        loader_cls = LOADERS[path.suffix.lower()]
-        loader = (
-            loader_cls(str(path), encoding="utf-8") if loader_cls is TextLoader 
-            else loader_cls(str(path))
-        )
+    files = s3_client.list_objects(Bucket=S3_BUCKET)
 
-        doc = loader.load()
-        ingest_document(doc, embeddings)
-        print(f"Loaded {path} ({len(doc)} page(s))")
+    if "Contents" in files:
+        for key in files['Contents']:
+            file = key['Key']
+            print(file)
+            s3_client.download_file(s3_bucket, file, file)
+
+            loader_cls = LOADERS[file.suffix.lower()]
+            loader = (
+                loader_cls(str(path), encoding="utf-8") if loader_cls is TextLoader 
+                else loader_cls(str(path))
+            )
+
+            doc = loader.load()
+
+            ingest_document(doc, embeddings)
+            print(f"Loaded {path} ({len(doc)} page(s))")
+            os.remove(file)
+    else:
+        print("empty")
+        
+    print("end")
 
 #==============================================================================
 
@@ -79,7 +98,7 @@ def main() -> int:
             vectors_config=VectorParams(size=1024, distance=Distance.COSINE),
         )
 
-    ingest_documents(DATA_DIR, embeddings)
+    ingest_documents(embeddings)
 
     print("Done.")
     return 0
