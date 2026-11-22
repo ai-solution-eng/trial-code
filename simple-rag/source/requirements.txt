@@ -1,0 +1,8 @@
+streamlit
+langchain==0.3.26
+langchain-community==0.3.27
+langchain-nvidia-ai-endpoints
+langchain-weaviate
+pypdf
+weaviate
+weaviate-client
