@@ -48,7 +48,7 @@ def title():
 def get_chunks(query: str):
     # Get the relevant chunks from the vector store
     retriever = st.session_state.vector_store.as_retriever(k=5)
-    docs = retriever.get_relevant_documents(query)
+    docs = retriever.invoke(query)
     return [doc.page_content for doc in docs]
 
 

@@ -4,7 +4,7 @@ metadata:
   name: {{ .Chart.Name }}-service
 spec:
   selector:
-    app: rag-demo
+    app: simple-rag
   ports:
     - name: http
       port: {{ .Values.service.httpPort }}

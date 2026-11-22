@@ -1,3 +1,12 @@
+env:
+  LLM_URL: ""
+  LLM_KEY: ""
+  LLM_MODEL: ""
+  EMBED_URL: ""
+  EMBED_KEY: ""
+  EMBED_MODEL: "nvidia/nv-embedqa-e5-v5"
+  QDRANT_URL: "http://qdrant.qdrant.svc.cluster.local"
+  QDRANT_COLLECTION: "anywhere"
 
 service:
   httpPort : 8501
@@ -13,5 +22,5 @@ resources:
 ezua:
   domainName: "${DOMAIN_NAME}"
   virtualService:
-    endpoint: "rag-demo.${DOMAIN_NAME}"
+    endpoint: "simple-rag.${DOMAIN_NAME}"
     istioGateway: "istio-system/ezaf-gateway"

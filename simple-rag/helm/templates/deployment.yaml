@@ -1,27 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rag-demo
+  name: simple-rag
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rag-demo
+      app: simple-rag
   template:
     metadata:
       labels:
-        app: rag-demo
+        app: simple-rag
         hpe-ezua/app: {{ .Chart.Name }}
         hpe-ezua/type: vendor-service
     spec:
       restartPolicy: Always
       containers:
         - name: {{ .Chart.Name }}
-          image: harbor.ai-application.pcai0104.ld7.hpecolo.net/rag/demo:{{ .Chart.AppVersion }}
+          image: harbor.tr7-0211-ai-application.pcai0211.tr7.hpecolo.net/trial/simple-rag:{{ .Chart.AppVersion }}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: {{ .Values.service.httpPort }}
               protocol: TCP
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
