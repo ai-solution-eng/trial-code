@@ -19,7 +19,7 @@ MCP_URL_DATABASE= os.getenv("MCP_URL_DATABASE")
 MCP_URL_VECTOR  = os.getenv("MCP_URL_VECTOR")
 
 PHOENIX_ENDPOINT = os.getenv("PHOENIX_ENDPOINT")
-PROJECT          = "agentic-rag"
+PROJECT          = "anywhere"
 
 tracer_provider = register( project_name=PROJECT, 
                             endpoint=f"{PHOENIX_ENDPOINT}/v1/traces", 
@@ -74,7 +74,7 @@ def build_crew(tools) -> Crew:
             "Use the available tools to fetch the data you need. If a tool "
             "call fails, adjust the parameters or try a related tool before "
             "giving up. Ground every claim in the data the tools return."
-            "When needing to specify a catalog, use 'agenticrag'"
+            "When needing to specify a catalog, use 'anywhere'"
         ),
         expected_output=(
             "A concise answer to the question, citing the concrete values "
